@@ -1364,6 +1364,8 @@ static void crypt_dtr(struct dm_target *ti)
 	int cpu;
 
 	ti->private = NULL;
+	
+	printk(KERN_ERR "MJ crypt_dtr\n");
 
 	if (!cc)
 		return;
@@ -1584,6 +1586,8 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		return -EINVAL;
 	}
 
+	printk(KERN_ERR "MJ crypt_ctr\n");
+
 	key_size = strlen(argv[1]) >> 1;
 
 	cc = kzalloc(sizeof(*cc) + key_size * sizeof(u8), GFP_KERNEL);
@@ -1705,6 +1709,8 @@ static int crypt_status(struct dm_target *ti, status_type_t type,
 	struct crypt_config *cc = ti->private;
 	unsigned int sz = 0;
 
+	printk(KERN_ERR "MJ crypt_status.\n");
+
 	switch (type) {
 	case STATUSTYPE_INFO:
 		result[0] = '\0';
@@ -1736,12 +1742,16 @@ static void crypt_postsuspend(struct dm_target *ti)
 {
 	struct crypt_config *cc = ti->private;
 
+	printk(KERN_ERR "MJ crypt_postsuspend\n");
+
 	set_bit(DM_CRYPT_SUSPENDED, &cc->flags);
 }
 
 static int crypt_preresume(struct dm_target *ti)
 {
 	struct crypt_config *cc = ti->private;
+
+	printk(KERN_ERR "MJ crypt_preresume\n");
 
 	if (!test_bit(DM_CRYPT_KEY_VALID, &cc->flags)) {
 		DMERR("aborting resume - crypt key is not set.");
@@ -1755,6 +1765,8 @@ static void crypt_resume(struct dm_target *ti)
 {
 	struct crypt_config *cc = ti->private;
 
+	printk(KERN_ERR "MJ crypt_resume\n");
+
 	clear_bit(DM_CRYPT_SUSPENDED, &cc->flags);
 }
 
@@ -1766,6 +1778,8 @@ static int crypt_message(struct dm_target *ti, unsigned argc, char **argv)
 {
 	struct crypt_config *cc = ti->private;
 	int ret = -EINVAL;
+
+	printk(KERN_ERR "MJ crypt_message\n");
 
 	if (argc < 2)
 		goto error;
@@ -1804,6 +1818,8 @@ static int crypt_merge(struct dm_target *ti, struct bvec_merge_data *bvm,
 	struct crypt_config *cc = ti->private;
 	struct request_queue *q = bdev_get_queue(cc->dev->bdev);
 
+	printk(KERN_ERR "MJ crypt_merge\n");
+
 	if (!q->merge_bvec_fn)
 		return max_size;
 
@@ -1817,6 +1833,8 @@ static int crypt_iterate_devices(struct dm_target *ti,
 				 iterate_devices_callout_fn fn, void *data)
 {
 	struct crypt_config *cc = ti->private;
+
+	printk(KERN_ERR "MJ crypt_iterate_devices\n");
 
 	return fn(ti, cc->dev, cc->start, ti->len, data);
 }

@@ -7,6 +7,7 @@
 
 #include "dm.h"
 #include "dm-uevent.h"
+#include "dm-dedup.h"
 
 #include <linux/init.h>
 #include <linux/module.h>
@@ -982,6 +983,8 @@ static void __map_bio(struct dm_target *ti, struct bio *clone,
 	sector_t sector;
 	struct mapped_device *md;
 
+	printk(KERN_ERR "MJ __map_bio \n");
+
 	clone->bi_end_io = clone_endio;
 	clone->bi_private = tio;
 
@@ -993,6 +996,9 @@ static void __map_bio(struct dm_target *ti, struct bio *clone,
 	atomic_inc(&tio->io->io_count);
 	sector = clone->bi_sector;
 	r = ti->type->map(ti, clone, &tio->info);
+
+	printk(KERN_ERR "MJ __map_bio iafter map call r is %d\n", r);
+
 	if (r == DM_MAPIO_REMAPPED) {
 		/* the bio has been remapped so dispatch it */
 
@@ -1135,6 +1141,8 @@ static void __issue_target_requests(struct clone_info *ci, struct dm_target *ti,
 {
 	unsigned request_nr;
 
+	printk(KERN_ERR "MJ __issue_target_requests\n");
+
 	for (request_nr = 0; request_nr < num_requests; request_nr++)
 		__issue_target_request(ci, ti, request_nr, len);
 }
@@ -1143,6 +1151,8 @@ static int __clone_and_map_empty_flush(struct clone_info *ci)
 {
 	unsigned target_nr = 0;
 	struct dm_target *ti;
+
+	printk(KERN_ERR "MJ __clone_and_map_empty_flush\n");
 
 	BUG_ON(bio_has_data(ci->bio));
 	while ((ti = dm_table_get_target(ci->map, target_nr++)))
@@ -1297,6 +1307,7 @@ static void __split_and_process_bio(struct mapped_device *md, struct bio *bio)
 		return;
 	}
 
+	printk(KERN_ERR "MJ __split_and_process_bio\n");
 	ci.md = md;
 	ci.io = alloc_io(md);
 	ci.io->error = 0;
@@ -1434,6 +1445,7 @@ static int dm_request_based(struct mapped_device *md)
 
 static int dm_request(struct request_queue *q, struct bio *bio)
 {
+	printk(KERN_ERR "MJ we come in dm_request.\n");
 	struct mapped_device *md = q->queuedata;
 
 	if (dm_request_based(md))
@@ -1800,6 +1812,7 @@ static void dm_init_md_queue(struct mapped_device *md)
 	 *
 	 * This queue is new, so no concurrency on the queue_flags.
 	 */
+	printk(KERN_ERR "MJ we come in dm_init_md_queue\n");
 	queue_flag_clear_unlocked(QUEUE_FLAG_STACKABLE, md->queue);
 
 	md->queue->queuedata = md;
@@ -2284,6 +2297,8 @@ static void dm_wq_work(struct work_struct *work)
 	struct mapped_device *md = container_of(work, struct mapped_device,
 						work);
 	struct bio *c;
+
+	printk(KERN_ERR "MJ dm_wq_work\n");
 
 	down_read(&md->io_lock);
 

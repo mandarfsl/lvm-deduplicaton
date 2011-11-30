@@ -36,6 +36,8 @@ static int submit(int rw, struct block_device *bdev, sector_t sector,
 	bio->bi_bdev = bdev;
 	bio->bi_end_io = end_swap_bio_read;
 
+	printk(KERN_ERR "MJ MAJOR(bdev->bd_dev) = %d\n", MAJOR(bdev->bd_dev));
+
 	if (bio_add_page(bio, page, PAGE_SIZE, 0) < PAGE_SIZE) {
 		printk(KERN_ERR "PM: Adding page to bio failed at %llu\n",
 			(unsigned long long)sector);

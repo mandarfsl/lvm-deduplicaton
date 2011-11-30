@@ -686,6 +686,8 @@ static int dev_create(struct dm_ioctl *param, size_t param_size)
 	int r, m = DM_ANY_MINOR;
 	struct mapped_device *md;
 
+	printk(KERN_ERR "MJ we come in dev_create.\n");
+
 	r = check_name(param->name);
 	if (r)
 		return r;
